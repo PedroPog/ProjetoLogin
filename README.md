@@ -12,7 +12,7 @@ Um aplicativo Android simples, porém robusto, desenvolvido como um projeto de e
 
 | Tela de Login | Tela de Registro | Tela de Perfil |
 | :-----------: | :--------------: | :------------: |
-| ![Tela de Login](URL_DA_SUA_IMAGEM_AQUI) | ![Tela de Registro](URL_DA_SUA_IMAGEM_AQUI) | ![Tela de Perfil](URL_DA_SUA_IMAGEM_AQUI) |
+| ![Tela de Login](https://github.com/PedroPog/ProjetoLogin/blob/4fb966dc924358d920163610111b69ccd931d48e/documeta%C3%A7%C3%A3o/login.png) | ![Tela de Registro](https://github.com/PedroPog/ProjetoLogin/blob/4fb966dc924358d920163610111b69ccd931d48e/documeta%C3%A7%C3%A3o/register.png) | ![Tela de Perfil](https://github.com/PedroPog/ProjetoLogin/blob/4fb966dc924358d920163610111b69ccd931d48e/documeta%C3%A7%C3%A3o/perfil.png) |
 
 ---
 
