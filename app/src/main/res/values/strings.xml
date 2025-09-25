@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ProjetoLogin</string>
+    <string name="preference_file_key">PERFIL_CHAVE</string>
+</resources>
