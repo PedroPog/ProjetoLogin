@@ -81,6 +81,6 @@ public class LoginNoSecurityActivity extends AppCompatActivity {
     public void onRegister(View view){
         Intent i = new Intent(view.getContext(), RegisterNoSecurityActivity.class);
         startActivity(i);
-        finish();
+        //finish();
     }
 }
