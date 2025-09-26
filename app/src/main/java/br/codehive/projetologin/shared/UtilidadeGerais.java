@@ -2,12 +2,23 @@ package br.codehive.projetologin.shared;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Patterns;
 import android.widget.EditText;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 
 import br.codehive.projetologin.R;
 import br.codehive.projetologin.model.PerfilModel;
@@ -102,6 +113,55 @@ public class UtilidadeGerais {
         }
         editText.setError(null);
         return true;
+    }
+
+    public static boolean verificarOrientacao(Context context){
+        int orientacao = context.getResources().getConfiguration().orientation;
+        return orientacao == Configuration.ORIENTATION_LANDSCAPE;
+    }
+
+    /**
+     * Paramentro de configuração hash
+     */
+    private static final String ALGORITHM = "PBKDF2WithHmacSHA256";
+    // Tamanho do "sal" em bytes. 16 bytes (128 bits) é um bom tamanho.
+    private static final int SALT_SIZE = 16;
+    // Número de iterações. Aumenta a dificuldade de ataques de força bruta.
+    private static final int ITERATIONS = 10000;
+    // Tamanho da chave (hash final) em bits.
+    private static final int KEY_LENGTH = 256;
+
+    public static String hashPassword(String password){
+        try {
+            SecureRandom random = new SecureRandom();
+            byte[] salt = new byte[SALT_SIZE];
+            random.nextBytes(salt);
+
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, ITERATIONS, KEY_LENGTH);
+            SecretKeyFactory factory = SecretKeyFactory.getInstance(ALGORITHM);
+            byte[] hash = factory.generateSecret(spec).getEncoded();
+            String saltB64 = Base64.encodeToString(salt, Base64.DEFAULT);
+            String hashB64 = Base64.encodeToString(hash, Base64.DEFAULT);
+            return saltB64 + ":" + hashB64;
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException("Erro ao gerar hash da senha", e);
+        }
+    }
+    public static boolean verifyPassword(String password, String storedHash) {
+        try {
+            String[] parts = storedHash.split(":");
+            if (parts.length != 2) {
+                return false;
+            }
+            byte[] salt = Base64.decode(parts[0], Base64.DEFAULT);
+            byte[] hash = Base64.decode(parts[1], Base64.DEFAULT);
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, ITERATIONS, KEY_LENGTH);
+            SecretKeyFactory factory = SecretKeyFactory.getInstance(ALGORITHM);
+            byte[] testHash = factory.generateSecret(spec).getEncoded();
+            return Arrays.equals(hash, testHash);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException | IllegalArgumentException e) {
+            return false;
+        }
     }
 
 }

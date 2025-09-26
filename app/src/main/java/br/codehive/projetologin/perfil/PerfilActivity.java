@@ -1,9 +1,17 @@
 package br.codehive.projetologin.perfil;
 
+import static br.codehive.projetologin.shared.UtilidadeGerais.hashPassword;
+import static br.codehive.projetologin.shared.UtilidadeGerais.verifyPassword;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -20,6 +28,7 @@ import br.codehive.projetologin.InterfaceActivity;
 import br.codehive.projetologin.R;
 import br.codehive.projetologin.login.LoginNoSecurityActivity;
 import br.codehive.projetologin.model.PerfilModel;
+import br.codehive.projetologin.model.TypesLogin;
 import br.codehive.projetologin.model.ValidationType;
 import br.codehive.projetologin.services.UsuarioService;
 import br.codehive.projetologin.shared.UtilidadeGerais;
@@ -31,6 +40,8 @@ public class PerfilActivity extends AppCompatActivity {
     private EditText editNome,editSenha,editEmail;
     private Button btnAlterar,btnDeletar;
     private UsuarioService service;
+    private TypesLogin typesLogin;
+    private boolean isEditandoSenha = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +53,8 @@ public class PerfilActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        Intent intent = getIntent();
+        typesLogin = (TypesLogin) intent.getSerializableExtra("01");
 
         editNome = findViewById(R.id.edit_nome_perfil);
         editEmail = findViewById(R.id.edit_email_perfil);
@@ -57,6 +70,8 @@ public class PerfilActivity extends AppCompatActivity {
         editNome.setText(model.getName());
         editEmail.setText(model.getEmail());
         editSenha.setText(model.getPassword());
+
+        init();
 
         btnDeletar.setOnClickListener(v->{
             boolean rt = service.deleteUsuario(model.getId());
@@ -83,7 +98,11 @@ public class PerfilActivity extends AppCompatActivity {
                 model.setPassword(password);
                 model.setName(nome);
                 model.setImagemPerfil("");
-
+                if(typesLogin.equals(TypesLogin.SecurityHash)){
+                    if(!password.equalsIgnoreCase(model.getPassword())){
+                        model.setPassword(hashPassword(password));
+                    }
+                }
                 boolean rt = service.updateUsuario(model);
                 if(!rt){
                     Log.e("UpdatePerfilFail","Falha ao update perfil!");
@@ -96,6 +115,58 @@ public class PerfilActivity extends AppCompatActivity {
             }
         });
 
+    }
+    @SuppressLint("ClickableViewAccessibility")
+    private void init(){
+        editSenha.setOnTouchListener((view, event) -> {
+            final int DRAWABLE_RIGHT = 2;
+            if(event.getAction() == MotionEvent.ACTION_UP){
+                if(event.getRawX() >= (editSenha.getRight() - editSenha.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())){
+                    if (isEditandoSenha) {
+                        // Se já está editando, o clique significa "CANCELAR"
+                        cancelarEdicaoSenha();
+                    } else {
+                        // Se não está editando, o clique significa "QUERO EDITAR"
+                        mostrarDialogConfirmacaoSenha();
+                    }
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
+    private void mostrarDialogConfirmacaoSenha() {
+        new AlertDialog.Builder(this)
+                .setTitle("Alterar Senha")
+                .setMessage("Tem certeza que deseja alterar sua senha?")
+                .setPositiveButton("Sim", (dialog, which) -> {
+                    habilitarEdicaoSenha();
+                })
+                .setNegativeButton("Não", null)
+                .show();
+    }
+    private void habilitarEdicaoSenha() {
+        isEditandoSenha = true;
+        editSenha.setEnabled(true);
+        editSenha.setFocusableInTouchMode(true); // Permite foco novamente
+        editSenha.setText("");
+        editSenha.requestFocus();
+        // Troca o ícone para "cancelar" via código
+        editSenha.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_close, 0);
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(editSenha, InputMethodManager.SHOW_IMPLICIT);
+    }
+    private void cancelarEdicaoSenha() {
+        isEditandoSenha = false;
+        editSenha.setText(model.getPassword());
+        editSenha.setEnabled(false);
+        editSenha.setFocusableInTouchMode(false); // Remove o foco
+        // Troca o ícone de volta para "editar"
+        editSenha.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_edit, 0);
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(editSenha.getWindowToken(), 0);
     }
 
     private void onBackNow(){

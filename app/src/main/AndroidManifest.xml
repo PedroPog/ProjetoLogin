@@ -33,6 +33,12 @@
         <activity
             android:name=".login.RegisterNoSecurityActivity"
             android:exported="false" />
+        <activity
+            android:name=".login.LoginSecurityHashActivity"
+            android:exported="false" />
+        <activity
+            android:name=".login.RegisterSecurityHashActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

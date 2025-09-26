@@ -2,15 +2,9 @@ package br.codehive.projetologin.login;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.text.InputType;
-import android.text.TextUtils;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -26,7 +20,7 @@ import br.codehive.projetologin.perfil.PerfilActivity;
 import br.codehive.projetologin.services.UsuarioService;
 import br.codehive.projetologin.shared.UtilidadeGerais;
 
-public class LoginNoSecurityActivity extends AppCompatActivity {
+public class LoginSecurityHashActivity extends AppCompatActivity {
 
     private TextInputLayout editEmail,editPassword;
     private Button btnEnviar;
@@ -47,7 +41,7 @@ public class LoginNoSecurityActivity extends AppCompatActivity {
         editPassword = findViewById(R.id.edit_password);
         btnEnviar = findViewById(R.id.btn_enviar);
 
-        editEmail.getEditText().setText("pedro@gmail.com");
+        editEmail.getEditText().setText("hash@gmail.com");
         editPassword.getEditText().setText("123456");
 
         btnEnviar.setOnClickListener(v->{
@@ -61,7 +55,7 @@ public class LoginNoSecurityActivity extends AppCompatActivity {
                 modelParaLogar.setEmail(email);
                 modelParaLogar.setPassword(password);
 
-                PerfilModel usuarioLogado = service.inlogin(modelParaLogar);
+                PerfilModel usuarioLogado = service.inloginHash(modelParaLogar);
 
                 if (usuarioLogado == null) {
                     Log.e("LoginFail","Falha ao login!");
@@ -72,7 +66,7 @@ public class LoginNoSecurityActivity extends AppCompatActivity {
 
                 Toast.makeText(v.getContext(), "Login Válido! Bem-vindo, " + usuarioLogado.getName(), Toast.LENGTH_LONG).show();
                 Intent i = new Intent(v.getContext(), PerfilActivity.class);
-                i.putExtra("01",TypesLogin.NoSecurity);
+                i.putExtra("01",TypesLogin.SecurityHash);
                 startActivity(i);
                 finish();
             }
@@ -82,7 +76,7 @@ public class LoginNoSecurityActivity extends AppCompatActivity {
 
 
     public void onRegister(View view){
-        Intent i = new Intent(view.getContext(), RegisterNoSecurityActivity.class);
+        Intent i = new Intent(view.getContext(), RegisterSecurityHashActivity.class);
         startActivity(i);
         //finish();
     }

@@ -47,6 +47,10 @@ public class RegisterNoSecurityActivity extends AppCompatActivity {
         editName = findViewById(R.id.edit_nome);
         btnEnviar = findViewById(R.id.btn_enviar);
 
+        editEmail.getEditText().setText("pedro@gmail.com");
+        editPassword.getEditText().setText("123456");
+        editName.getEditText().setText("pedro");
+
         btnEnviar.setOnClickListener(v->{
             boolean isEmailValid = gerais.valid(editEmail, ValidationType.EMAIL);
             boolean isPasswordValid = gerais.valid(editPassword, ValidationType.PASSWORD);
